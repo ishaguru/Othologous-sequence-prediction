@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
 
 # Import required libraries
 import pandas
@@ -115,10 +110,4 @@ if __name__ == "__main__":
     parse_results("file_2.xml", "output_2.txt", 0.05)
     filter_score()
     flank(10, "final_op2.txt", "agam_file")
-
-
-# In[ ]:
-
-
-
 
