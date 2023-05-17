@@ -57,12 +57,12 @@ def parse_results(xml_file, output_file, evalue_thresh):
 # Define function to filter results based on score and plot the score distribution
 def filter_score():
     # Read data from input file using pandas.read_csv function
-    df = pandas.read_csv("output_2.txt", sep='\t',skiprows= [0],names=['ID', 'Start','Stop','Species','E-value','Score','Align_length'])
+    df = pandas.read_csv("output_11.txt", sep='\t',skiprows= [0],names=['ID', 'Start','Stop','Species','E-value','Score','Align_length','percent_identity'])
     data = df['Score']
     # Calculate mean, standard deviation, and upper limit based on standard deviation of the score distribution
     mean = df['Score'].mean()
     std = df['Score'].std()
-    limit =std
+    limit = mean + std
     # Determine minimum and maximum score values for plotting purposes
     min_value = min(data)
     max_value = max(data)
@@ -70,7 +70,7 @@ def filter_score():
     plt.title("Score_values")
     plt.ylim(min_value - 100, max_value + 100)
     plt.scatter(x=df.index, y=df['Score'])
-    plt.hlines(y= std, xmin=0, xmax=len(data),colors='g')
+    plt.hlines(y= limit, xmin=0, xmax=len(data),colors='g')
     plt.show()
     
     print(limit)
@@ -78,7 +78,7 @@ def filter_score():
     df_new = df[df['Score'] > limit]
     print(df_new)
 
-    df_new.to_csv('final_op2.txt', sep="\t",index= False,header= False)
+    df_new.to_csv('final_op11.txt', sep="\t",index= False,header= False)
 
 #This function reads the input file, extracts the ID, start and end positions of each sequence, fetches the corresponding sequences using the Entrez API, and writes the output to a file in FASTA format.
 def flank(bp, input_file, output_file):
@@ -89,9 +89,13 @@ def flank(bp, input_file, output_file):
         rows = (line.split('\t') for line in f)
         for row in rows:
             uid.append(row[0])
-            start.append(int(row[1]))
-            end.append(int(row[2]))
-        
+            if int(row[1]) < int(row[2]):
+                start.append(int(row[1]))
+                end.append(int(row[2]))
+            else:
+                start.append(int(row[2]))
+                end.append(int(row[1]))
+
     # Running efetch and returning the output in FASTA format
     Entrez.email = "ishaguru64@gmail.com"
     with open(output_file, "w") as bed:
@@ -103,7 +107,7 @@ def flank(bp, input_file, output_file):
                 print(f"Error fetching sequence {uid[i]}: {str(e)}")
 
     
-#calling main function   
+#calling main function - example parameters  
 if __name__ == "__main__":
     run_blast("agam_crm.txt" ,"refseq_genomic" ,"txid43816[ORGN]")
     remove_word_from_xml("results_2.xml", "CREATE_VIEW","file_2.xml")
